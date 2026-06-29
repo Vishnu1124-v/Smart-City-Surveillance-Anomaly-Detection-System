@@ -6,10 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
+from sqlalchemy import text
+
 from app.api import auth_router, users_router, categories_router, products_router, cart_router, orders_router
 from app.database import engine, Base
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 
 app = FastAPI(title="Urbaneve API", version="1.0.0")
 
@@ -35,7 +40,14 @@ app.include_router(orders_router)
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "healthy"}
+    db_ok = False
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+            db_ok = True
+    except Exception:
+        pass
+    return {"status": "healthy", "database": "connected" if db_ok else "unavailable"}
 
 
 frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
