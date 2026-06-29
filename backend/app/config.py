@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings
 
 
@@ -13,3 +15,6 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+if os.environ.get("POSTGRES_URL"):
+    settings.DATABASE_URL = os.environ["POSTGRES_URL"]
