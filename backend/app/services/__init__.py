@@ -1,7 +1,6 @@
 from app.services.auth_service import AuthService
-from app.services.category_service import CategoryService
-from app.services.product_service import ProductService
-from app.services.cart_service import CartService
-from app.services.order_service import OrderService
+from app.services.camera_service import CameraService
+from app.services.alert_service import AlertService
+from app.services.detection_service import DetectionService
 
-__all__ = ["AuthService", "CategoryService", "ProductService", "CartService", "OrderService"]
+__all__ = ["AuthService", "CameraService", "AlertService", "DetectionService"]

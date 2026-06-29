@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { authApi } from '../api/auth'
-import type { User } from '../api/types'
+import { api } from '../api/client'
+import type { AuthResponse, User } from '../api/types'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -9,7 +9,7 @@ export function useAuth() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
-      authApi.getProfile()
+      api.get<User>('/auth/me')
         .then(setUser)
         .catch(() => localStorage.removeItem('token'))
         .finally(() => setLoading(false))
@@ -19,17 +19,16 @@ export function useAuth() {
   }, [])
 
   const login = useCallback(async (username: string, password: string) => {
-    const res = await authApi.login(username, password)
-    localStorage.setItem('token', res.access_token)
-    const profile = await authApi.getProfile()
-    setUser(profile)
-    return profile
-  }, [])
-
-  const register = useCallback(async (data: { email: string; username: string; password: string; full_name?: string }) => {
-    const res = await authApi.register(data)
-    localStorage.setItem('token', res.access_token)
-    const profile = await authApi.getProfile()
+    const form = new URLSearchParams({ username, password })
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    })
+    const data: AuthResponse = await res.json()
+    if (!res.ok) throw new Error('Login failed')
+    localStorage.setItem('token', data.access_token)
+    const profile = await api.get<User>('/auth/me')
     setUser(profile)
     return profile
   }, [])
@@ -39,5 +38,5 @@ export function useAuth() {
     setUser(null)
   }, [])
 
-  return { user, loading, login, register, logout }
+  return { user, loading, login, logout }
 }

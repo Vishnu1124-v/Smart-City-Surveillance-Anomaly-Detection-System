@@ -1,57 +1,26 @@
 export interface User {
-  id: number;
-  email: string;
-  username: string;
-  full_name: string | null;
-  is_admin: boolean;
-  created_at: string;
+  id: number; email: string; username: string; full_name: string | null;
+  role: string; is_active: boolean; created_at: string;
 }
 
-export interface Category {
-  id: number;
-  name: string;
-  description: string | null;
-  image_url: string | null;
+export interface Camera {
+  id: number; name: string; location: string | null; stream_url: string | null;
+  status: string; latitude: number | null; longitude: number | null;
+  is_active: boolean; created_at: string;
 }
 
-export interface Product {
-  id: number;
-  name: string;
-  description: string | null;
-  price: number;
-  stock: number;
-  image_url: string | null;
-  category_id: number | null;
-  created_at: string;
+export interface Alert {
+  id: number; camera_id: number; title: string; description: string | null;
+  severity: string; status: string; anomaly_type: string | null;
+  confidence: number; snapshot_url: string | null; assigned_to: number | null;
+  created_at: string; resolved_at: string | null;
+  camera: Camera | null;
 }
 
-export interface CartItem {
-  id: number;
-  user_id: number;
-  product_id: number;
-  quantity: number;
-  product: Product;
+export interface DashboardData {
+  cameras: { total: number; online: number; offline: number };
+  alerts: { total: number; open: number; high_severity: number };
+  recent_alerts: { id: number; title: string; severity: string; status: string; camera_name: string | null; created_at: string }[];
 }
 
-export interface OrderItem {
-  id: number;
-  product_id: number;
-  quantity: number;
-  price: number;
-  product: Product;
-}
-
-export interface Order {
-  id: number;
-  user_id: number;
-  status: string;
-  total: number;
-  shipping_address: string | null;
-  created_at: string;
-  items: OrderItem[];
-}
-
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-}
+export interface AuthResponse { access_token: string; token_type: string; }

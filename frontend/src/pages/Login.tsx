@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Login() {
@@ -9,39 +9,27 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       await login(username, password)
       navigate('/')
-    } catch (err) {
-      setError('Invalid username or password')
+    } catch {
+      setError('Invalid credentials')
     }
   }
 
   return (
     <div className="auth-page">
       <div className="auth-form">
-        <h1>Login</h1>
+        <div className="auth-logo">UrbanEye</div>
+        <p className="auth-subtitle">Surveillance & Anomaly Detection</p>
         {error && <p className="error">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="btn-primary">Login</button>
+        <form onSubmit={onSubmit}>
+          <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+          <button type="submit" className="btn-primary">Sign In</button>
         </form>
-        <p>Don't have an account? <Link to="/register">Register</Link></p>
       </div>
     </div>
   )

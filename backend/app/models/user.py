@@ -14,8 +14,8 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     full_name: Mapped[str] = mapped_column(String, nullable=True)
-    is_admin: Mapped[bool] = mapped_column(default=False)
+    role: Mapped[str] = mapped_column(String, default="operator")
+    is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    cart_items: Mapped[list["CartItem"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    orders: Mapped[list["Order"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    alerts: Mapped[list["Alert"]] = relationship(back_populates="assigned_user", cascade="all, delete-orphan")

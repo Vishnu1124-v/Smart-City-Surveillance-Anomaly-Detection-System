@@ -4,11 +4,10 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from starlette.responses import FileResponse
-
 from sqlalchemy import text
+from starlette.responses import FileResponse, JSONResponse
 
-from app.api import auth_router, users_router, categories_router, products_router, cart_router, orders_router
+from app.api import auth_router, cameras_router, alerts_router, dashboard_router
 from app.database import engine, Base
 
 try:
@@ -16,7 +15,7 @@ try:
 except Exception:
     pass
 
-app = FastAPI(title="Urbaneve API", version="1.0.0")
+app = FastAPI(title="UrbanEye - Smart City Surveillance & Anomaly Detection", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,11 +30,9 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-app.include_router(users_router)
-app.include_router(categories_router)
-app.include_router(products_router)
-app.include_router(cart_router)
-app.include_router(orders_router)
+app.include_router(cameras_router)
+app.include_router(alerts_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/api/health")
@@ -55,12 +52,11 @@ if frontend_dist.exists():
     app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
 
     @app.exception_handler(404)
-    async def not_found_handler(request, exc):
+    async def not_found(request, exc):
         return FileResponse(str(frontend_dist / "index.html"))
 
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        if full_path.startswith("api/"):
-            from fastapi.responses import JSONResponse
+    @app.get("/{path:path}")
+    async def spa(path: str):
+        if path.startswith("api/"):
             return JSONResponse({"detail": "Not Found"}, status_code=404)
         return FileResponse(str(frontend_dist / "index.html"))

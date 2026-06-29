@@ -9,6 +9,7 @@ class UserCreate(BaseModel):
     username: str
     password: str
     full_name: Optional[str] = None
+    role: str = "operator"
 
 
 class UserLogin(BaseModel):
@@ -21,7 +22,8 @@ class UserResponse(BaseModel):
     email: str
     username: str
     full_name: Optional[str] = None
-    is_admin: bool
+    role: str
+    is_active: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}

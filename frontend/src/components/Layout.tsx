@@ -1,30 +1,29 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Layout() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <div className="layout">
       <nav className="navbar">
         <div className="nav-container">
-          <Link to="/" className="nav-brand">Urbaneve</Link>
-          <div className="nav-links">
-            <Link to="/products">Shop</Link>
-            <Link to="/cart">Cart</Link>
-            {user ? (
-              <>
-                <Link to="/orders">Orders</Link>
-                <span className="nav-user">{user.username}</span>
-                <button onClick={logout} className="nav-btn">Logout</button>
-              </>
-            ) : (
-              <>
-                <Link to="/login">Login</Link>
-                <Link to="/register">Register</Link>
-              </>
-            )}
-          </div>
+          <Link to="/" className="nav-brand">UrbanEye</Link>
+          {user && (
+            <div className="nav-links">
+              <Link to="/">Dashboard</Link>
+              <Link to="/cameras">Cameras</Link>
+              <Link to="/alerts">Alerts</Link>
+              <span className="nav-user">{user.username}</span>
+              <button onClick={handleLogout} className="nav-btn">Logout</button>
+            </div>
+          )}
         </div>
       </nav>
       <main className="main-content">

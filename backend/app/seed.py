@@ -1,8 +1,8 @@
 from app.database import SessionLocal, engine, Base
 from app.models.user import User
-from app.models.category import Category
-from app.models.product import Product
-from app.utils.auth import get_password_hash
+from app.models.camera import Camera
+from app.models.alert import Alert
+from app.utils.auth import hash_password
 
 Base.metadata.create_all(bind=engine)
 
@@ -10,57 +10,58 @@ Base.metadata.create_all(bind=engine)
 def seed():
     db = SessionLocal()
 
-    if db.query(Category).first():
+    if db.query(Camera).first():
         print("Database already seeded")
         db.close()
         return
 
     admin = User(
-        email="admin@urbaneve.com",
+        email="admin@urbaneye.com",
         username="admin",
-        hashed_password=get_password_hash("admin123"),
-        full_name="Admin User",
-        is_admin=True,
+        hashed_password=hash_password("admin123"),
+        full_name="System Admin",
+        role="admin",
     )
-    db.add(admin)
+    operator = User(
+        email="operator@urbaneye.com",
+        username="operator",
+        hashed_password=hash_password("operator123"),
+        full_name="Camera Operator",
+        role="operator",
+    )
+    db.add_all([admin, operator])
     db.commit()
+    db.refresh(admin)
+    db.refresh(operator)
 
-    categories_data = [
-        {"name": "Dresses", "description": "Elegant dresses for every occasion"},
-        {"name": "Tops", "description": "Stylish tops and blouses"},
-        {"name": "Bottoms", "description": "Pants, skirts, and shorts"},
-        {"name": "Outerwear", "description": "Jackets, coats, and hoodies"},
-        {"name": "Accessories", "description": "Bags, jewelry, and more"},
-        {"name": "Footwear", "description": "Shoes, boots, and sneakers"},
+    cameras_data = [
+        {"name": "Main Entrance - North Gate", "location": "North Gate, Sector 1", "status": "online", "latitude": 12.9716, "longitude": 77.5946},
+        {"name": "South Junction - Traffic Cam", "location": "South Junction, Sector 3", "status": "online", "latitude": 12.9352, "longitude": 77.6245},
+        {"name": "Central Square - Plaza", "location": "Central Square, Sector 2", "status": "online", "latitude": 12.9580, "longitude": 77.6140},
+        {"name": "East Corridor - Metro Exit", "location": "East Metro Exit, Sector 4", "status": "offline", "latitude": 12.9870, "longitude": 77.6500},
+        {"name": "West Parking Lot", "location": "West Parking, Sector 1", "status": "online", "latitude": 12.9650, "longitude": 77.5800},
+        {"name": "Market Street Surveillance", "location": "Market Street, Sector 2", "status": "online", "latitude": 12.9700, "longitude": 77.6000},
     ]
 
-    categories = {}
-    for cat_data in categories_data:
-        category = Category(**cat_data)
-        db.add(category)
+    cameras = {}
+    for cam_data in cameras_data:
+        cam = Camera(**cam_data)
+        db.add(cam)
         db.commit()
-        db.refresh(category)
-        categories[cat_data["name"]] = category
+        db.refresh(cam)
+        cameras[cam_data["name"]] = cam
 
-    products_data = [
-        {"name": "Floral Summer Dress", "description": "Light and breezy floral dress perfect for summer days", "price": 59.99, "stock": 25, "category": "Dresses", "image_url": "/images/floral-dress.jpg"},
-        {"name": "Little Black Dress", "description": "Classic little black dress for any formal event", "price": 89.99, "stock": 30, "category": "Dresses", "image_url": "/images/black-dress.jpg"},
-        {"name": "Striped Cotton Top", "description": "Comfortable striped cotton top for casual wear", "price": 34.99, "stock": 50, "category": "Tops", "image_url": "/images/striped-top.jpg"},
-        {"name": "Silk Blouse", "description": "Luxurious silk blouse in cream", "price": 69.99, "stock": 20, "category": "Tops", "image_url": "/images/silk-blouse.jpg"},
-        {"name": "High-Waist Jeans", "description": "Trendy high-waist denim jeans", "price": 49.99, "stock": 35, "category": "Bottoms", "image_url": "/images/high-waist-jeans.jpg"},
-        {"name": "Pleated Midi Skirt", "description": "Elegant pleated midi skirt in navy", "price": 44.99, "stock": 28, "category": "Bottoms", "image_url": "/images/pleated-skirt.jpg"},
-        {"name": "Denim Jacket", "description": "Classic denim jacket with a modern fit", "price": 79.99, "stock": 15, "category": "Outerwear", "image_url": "/images/denim-jacket.jpg"},
-        {"name": "Wool Coat", "description": "Warm wool coat for winter", "price": 149.99, "stock": 10, "category": "Outerwear", "image_url": "/images/wool-coat.jpg"},
-        {"name": "Leather Crossbody Bag", "description": "Genuine leather crossbody bag", "price": 59.99, "stock": 40, "category": "Accessories", "image_url": "/images/crossbody-bag.jpg"},
-        {"name": "Gold Hoop Earrings", "description": "14k gold hoop earrings set", "price": 29.99, "stock": 100, "category": "Accessories", "image_url": "/images/gold-hoops.jpg"},
-        {"name": "White Sneakers", "description": "Classic white leather sneakers", "price": 74.99, "stock": 45, "category": "Footwear", "image_url": "/images/white-sneakers.jpg"},
-        {"name": "Ankle Boots", "description": "Chic black ankle boots with block heel", "price": 99.99, "stock": 22, "category": "Footwear", "image_url": "/images/ankle-boots.jpg"},
+    alerts_data = [
+        {"camera": "Main Entrance - North Gate", "title": "Suspicious Movement Detected", "description": "Unauthorized vehicle approach at north gate", "severity": "high", "anomaly_type": "suspicious_movement", "confidence": 0.92, "status": "open", "assigned_to": admin.id},
+        {"camera": "Central Square - Plaza", "title": "Crowd Formation Alert", "description": "Unusual crowd gathering detected in central plaza", "severity": "medium", "anomaly_type": "crowd_formation", "confidence": 0.78, "status": "open"},
+        {"camera": "Market Street Surveillance", "title": "Object Abandoned", "description": "Suspicious package left at market street bench", "severity": "high", "anomaly_type": "object_abandoned", "confidence": 0.85, "status": "open"},
+        {"camera": "South Junction - Traffic Cam", "title": "Traffic Anomaly", "description": "Vehicle stopped in restricted zone", "severity": "medium", "anomaly_type": "loitering", "confidence": 0.71, "status": "open"},
     ]
 
-    for prod_data in products_data:
-        category_name = prod_data.pop("category")
-        product = Product(category_id=categories[category_name].id, **prod_data)
-        db.add(product)
+    for alert_data in alerts_data:
+        camera_name = alert_data.pop("camera")
+        alert = Alert(camera_id=cameras[camera_name].id, **alert_data)
+        db.add(alert)
 
     db.commit()
     db.close()

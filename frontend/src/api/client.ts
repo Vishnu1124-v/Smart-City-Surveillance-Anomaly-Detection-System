@@ -1,30 +1,24 @@
-const API_BASE = '/api';
+const BASE = '/api';
 
-async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+async function request<T>(endpoint: string, opts?: RequestInit): Promise<T> {
   const token = localStorage.getItem('token');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options?.headers as Record<string, string>),
+    ...(opts?.headers as Record<string, string>),
   };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-
+  const res = await fetch(`${BASE}${endpoint}`, { ...opts, headers });
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || 'Request failed');
+    const err = await res.json().catch(() => ({ detail: 'Request failed' }));
+    throw new Error(err.detail || 'Request failed');
   }
-
   return res.json();
 }
 
 export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint),
-  post: <T>(endpoint: string, data?: unknown) =>
-    request<T>(endpoint, { method: 'POST', body: JSON.stringify(data) }),
-  put: <T>(endpoint: string, data?: unknown) =>
-    request<T>(endpoint, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
+  get: <T>(e: string) => request<T>(e),
+  post: <T>(e: string, d?: unknown) => request<T>(e, { method: 'POST', body: JSON.stringify(d) }),
+  put: <T>(e: string, d?: unknown) => request<T>(e, { method: 'PUT', body: JSON.stringify(d) }),
+  delete: <T>(e: string) => request<T>(e, { method: 'DELETE' }),
 };
